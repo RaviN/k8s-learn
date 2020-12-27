@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: self-hello-kubernetes
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 1738
+    targetPort: 8080
+  selector:
+    app: self-hello-kubernetes
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: self-hello-backend
+spec:
+  ports:
+  - name: backend-port
+    port: 8081
+    targetPort: 8999
+  selector:
+    app: self-hello-backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: self-hello-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: self-hello-backend
+  template:
+    metadata:
+      labels:
+        app: self-hello-backend
+    spec:
+      containers:
+      - name: self-hello-backend
+        image: localhost:5000/shw-backend:latest
+        ports:
+        - containerPort: 8999
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: self-hello-kubernetes
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: self-hello-kubernetes
+  template:
+    metadata:
+      labels:
+        app: self-hello-kubernetes
+    spec:
+      containers:
+      - name: self-hello-kubernetes
+        image: localhost:5000/shw:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MESSAGE
+          value: Who is the man?
